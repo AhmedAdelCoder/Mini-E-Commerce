@@ -1,7 +1,9 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import {
+  registerUserService,
+  loginUserService,
+} from "../services/authService.js";
 
+//? Register
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -13,24 +15,13 @@ export const register = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "Email already registered",
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
+    const user = await registerUserService({
       name,
       email,
-      password: hashedPassword,
+      password,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "User registered successfully",
       user: {
@@ -41,13 +32,16 @@ export const register = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
-      message: "Server error",
+      message: error.statusCode
+        ? error.message
+        : "Server error",
     });
   }
 };
 
+//? Login
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -59,39 +53,12 @@ export const login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password",
-      });
-    }
-
-    const isPasswordCorrect = await bcrypt.compare(
+    const { user, token } = await loginUserService({
+      email,
       password,
-      user.password
-    );
+    });
 
-    if (!isPasswordCorrect) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password",
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Login successful",
       token,
@@ -103,11 +70,11 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
-      message: "Server error",
+      message: error.statusCode
+        ? error.message
+        : "Server error",
     });
   }
 };
