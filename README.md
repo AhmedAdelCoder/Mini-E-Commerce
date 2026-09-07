@@ -23,11 +23,11 @@ Clean layered architecture · Secure JWT authentication · Real-time inventory �
 
 ### Storefront
 
-![NOVA Storefront Home]([Home.png](https://github.com/AhmedAdelCoder/Mini-E-Commerce/blob/main/Image_README/Home.png))
+![NOVA Storefront Home](./Image_README/Home.png)
 
 ### Admin Dashboard
 
-![NOVA Admin Dashboard](./Image_README/admin-dashboard.png)
+![NOVA Admin Dashboard](./Image_README/Dashborad.png)
 
 </div>
 
@@ -159,11 +159,11 @@ NOVA-Store/
 │   └── ...
 │
 ├── Image_README/
-│   ├── admin-dashboard.png
-│   ├── storefront-home.png
-│   ├── order-management.png
-│   ├── reports-analytics.png
-│   └── user-management.png
+│   ├── Dashborad.png
+│   ├── Home.png
+│   ├── Order.png
+│   ├── Report.png
+│   └── User.png
 │
 ├── .gitignore
 └── README.md
@@ -271,7 +271,7 @@ Orders may also be marked as `cancelled` at any applicable stage.
 
 <div align="center">
 
-![Order Management](./Image_README/order-management.png)
+![Order Management](./Image_README/Order.png)
 
 </div>
 
@@ -408,11 +408,11 @@ All analytics and reports are driven by real backend data — no fabricated or p
 
 ### Inventory & Sales Reports
 
-![Reports and Analytics](./Image_README/reports-analytics.png)
+![Reports and Analytics](./Image_README/Report.png)
 
 ### User Management
 
-![User Management](./Image_README/user-management.png)
+![User Management](./Image_README/User.png)
 
 </div>
 
