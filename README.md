@@ -23,7 +23,7 @@ Clean layered architecture · Secure JWT authentication · Real-time inventory �
 
 ### Storefront
 
-![NOVA Storefront Home](./Image_README/storefront-home.png)
+![NOVA Storefront Home](Home.png)
 
 ### Admin Dashboard
 
