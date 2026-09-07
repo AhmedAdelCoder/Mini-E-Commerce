@@ -1,55 +1,82 @@
-# NOVA Store
+<div align="center">
 
-A modern, full-stack e-commerce platform built with Node.js, Express, MongoDB, and React.
+# ⚡ NOVA Store
 
-NOVA Store is designed around a clean, layered architecture with secure authentication, comprehensive product and category management, shopping cart functionality, order processing, and a responsive, production-ready frontend.
+**A modern, full-stack e-commerce platform** built with Node.js, Express, MongoDB, and React.
+
+Clean layered architecture · Secure JWT authentication · Real-time inventory · Production-ready admin dashboard
+
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](#)
+[![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](#)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](#)
+[![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](#)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](#)
+
+</div>
+
+---
+
+## 📸 Preview
+
+<div align="center">
+
+### Storefront
+
+![NOVA Storefront Home](./Image_README/storefront-home.png)
+
+### Admin Dashboard
+
+![NOVA Admin Dashboard](./Image_README/admin-dashboard.png)
+
+</div>
 
 ---
 
 ## Table of Contents
 
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Authentication](#authentication)
-- [API Reference](#api-reference)
-- [Order Processing](#order-processing)
-- [Environment Variables](#environment-variables)
-- [Installation](#installation)
-- [API Testing](#api-testing)
-- [Security](#security)
-- [Frontend](#frontend)
-- [Admin Dashboard](#admin-dashboard)
-- [Roadmap](#roadmap)
-- [License](#license)
-- [Author](#author)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Authentication](#-authentication)
+- [API Reference](#-api-reference)
+- [Order Processing](#-order-processing)
+- [Environment Variables](#-environment-variables)
+- [Installation](#-installation)
+- [API Testing](#-api-testing)
+- [Security](#-security)
+- [Frontend](#-frontend)
+- [Admin Dashboard](#-admin-dashboard)
+- [Roadmap](#-roadmap)
+- [License](#-license)
+- [Author](#-author)
 
 ---
 
-## Features
+## ✨ Features
 
-### Authentication & Authorization
+### 🔐 Authentication & Authorization
 - User registration and login
 - JWT-based authentication
 - Protected route middleware
 - Role-based authorization (Customer / Admin)
 
-### Products
+### 📦 Products
 - Full CRUD operations (create, read, update, delete)
 - Stock management
 - Category assignment
 
-### Categories
+### 🗂️ Categories
 - Full CRUD operations
 - Category-based product organization
 
-### Shopping Cart
+### 🛒 Shopping Cart
 - Per-user, authenticated cart
 - Add, update, and remove items
 - Real-time product availability validation
 
-### Orders
+### 📑 Orders
 - Order creation from the active cart
 - Server-side stock validation before checkout
 - Backend-calculated order totals
@@ -57,7 +84,7 @@ NOVA Store is designed around a clean, layered architecture with secure authenti
 - Automatic stock decrement and cart clearing on success
 - Order history and detail retrieval
 
-### Admin
+### 🛠️ Admin
 - Admin-only protected endpoints
 - Product, category, and order management
 - Order status control
@@ -65,7 +92,7 @@ NOVA Store is designed around a clean, layered architecture with secure authenti
 
 ---
 
-## Tech Stack
+## 🧩 Tech Stack
 
 **Backend**
 - Node.js
@@ -87,7 +114,7 @@ NOVA Store is designed around a clean, layered architecture with secure authenti
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
 The backend follows a layered architecture that separates concerns across distinct responsibilities:
 
@@ -105,7 +132,7 @@ Request → Routes → Middleware → Controller → Service → Model → Mongo
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 NOVA-Store/
@@ -131,13 +158,20 @@ NOVA-Store/
 │   │   └── routes/
 │   └── ...
 │
+├── Image_README/
+│   ├── admin-dashboard.png
+│   ├── storefront-home.png
+│   ├── order-management.png
+│   ├── reports-analytics.png
+│   └── user-management.png
+│
 ├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Authentication
+## 🔑 Authentication
 
 Protected endpoints require a valid JWT access token, sent via the `Authorization` header:
 
@@ -154,7 +188,7 @@ Admin-only operations require an authenticated user with the `admin` role.
 
 ---
 
-## API Reference
+## 📡 API Reference
 
 ### Authentication
 
@@ -235,9 +269,15 @@ Orders may also be marked as `cancelled` at any applicable stage.
 
 **Order item snapshot:** each order stores the product's name, price, quantity, and product ID at the time of purchase, ensuring historical orders remain unaffected by later price changes.
 
+<div align="center">
+
+![Order Management](./Image_README/order-management.png)
+
+</div>
+
 ---
 
-## Order Processing
+## 🧮 Order Processing
 
 **Total calculation** — always computed server-side:
 
@@ -264,7 +304,7 @@ Orders that exceed available stock are automatically rejected.
 
 ---
 
-## Environment Variables
+## ⚙️ Environment Variables
 
 Create a `.env` file inside the `backend/` directory:
 
@@ -278,7 +318,7 @@ JWT_SECRET=your_jwt_secret
 
 ---
 
-## Installation
+## 🚀 Installation
 
 **1. Clone the repository**
 ```bash
@@ -305,7 +345,7 @@ The frontend will be served via the Vite development server, and the backend wil
 
 ---
 
-## API Testing
+## 🧪 API Testing
 
 Recommended end-to-end testing flow:
 
@@ -328,7 +368,7 @@ Both success and failure paths should be covered, including:
 
 ---
 
-## Security
+## 🛡️ Security
 
 NOVA Store applies the following security practices:
 
@@ -341,7 +381,7 @@ NOVA Store applies the following security practices:
 
 ---
 
-## Frontend
+## 🖥️ Frontend
 
 The frontend delivers a modern, e-commerce-grade user experience, with attention to:
 
@@ -354,7 +394,7 @@ The frontend delivers a modern, e-commerce-grade user experience, with attention
 
 ---
 
-## Admin Dashboard
+## 🎛️ Admin Dashboard
 
 The Admin Dashboard centralizes store operations across the following areas:
 
@@ -364,9 +404,21 @@ Dashboard · Products · Categories · Orders · Users · Reports · Settings
 
 All analytics and reports are driven by real backend data — no fabricated or placeholder statistics.
 
+<div align="center">
+
+### Inventory & Sales Reports
+
+![Reports and Analytics](./Image_README/reports-analytics.png)
+
+### User Management
+
+![User Management](./Image_README/user-management.png)
+
+</div>
+
 ---
 
-## Roadmap
+## 🗺️ Roadmap
 
 Planned improvements include:
 
@@ -384,23 +436,21 @@ Planned improvements include:
 
 ---
 
-## Screenshots
-
-Screenshots of the NOVA Store interface will be added once the frontend implementation is finalized.
-
----
-
-## License
+## 📄 License
 
 This project is developed for learning and portfolio purposes.
 
 ---
 
-## Author
+## 👤 Author
 
 **Ahmed Adel**
 Full-Stack Developer
 
 ---
 
+<div align="center">
+
 *Build. Learn. Improve. Ship.*
+
+</div>
