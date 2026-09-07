@@ -1,444 +1,406 @@
-# 🛒 Mini E-Commerce
+# NOVA Store
 
-A small RESTful E-Commerce backend built with **Node.js, Express.js, and MongoDB**, designed to demonstrate clean backend fundamentals such as authentication, authorization, password hashing, JWT, and role-based access control.
+A modern, full-stack e-commerce platform built with Node.js, Express, MongoDB, and React.
 
-The project is intentionally kept small and focused so it can be developed, tested, and understood within a short development period.
+NOVA Store is designed around a clean, layered architecture with secure authentication, comprehensive product and category management, shopping cart functionality, order processing, and a responsive, production-ready frontend.
 
 ---
 
-## 🚀 Current Features
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Authentication](#authentication)
+- [API Reference](#api-reference)
+- [Order Processing](#order-processing)
+- [Environment Variables](#environment-variables)
+- [Installation](#installation)
+- [API Testing](#api-testing)
+- [Security](#security)
+- [Frontend](#frontend)
+- [Admin Dashboard](#admin-dashboard)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Author](#author)
+
+---
+
+## Features
+
+### Authentication & Authorization
+- User registration and login
+- JWT-based authentication
+- Protected route middleware
+- Role-based authorization (Customer / Admin)
+
+### Products
+- Full CRUD operations (create, read, update, delete)
+- Stock management
+- Category assignment
+
+### Categories
+- Full CRUD operations
+- Category-based product organization
+
+### Shopping Cart
+- Per-user, authenticated cart
+- Add, update, and remove items
+- Real-time product availability validation
+
+### Orders
+- Order creation from the active cart
+- Server-side stock validation before checkout
+- Backend-calculated order totals
+- Immutable price snapshots at time of purchase
+- Automatic stock decrement and cart clearing on success
+- Order history and detail retrieval
+
+### Admin
+- Admin-only protected endpoints
+- Product, category, and order management
+- Order status control
+- Centralized administrative operations
+
+---
+
+## Tech Stack
+
+**Backend**
+- Node.js
+- Express.js
+- MongoDB with Mongoose
+- JWT authentication
+- ES Modules
+
+**Frontend**
+- React with Vite
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- React Router
+- TanStack Query
+- Axios
+- React Hook Form with Zod validation
+- Lucide Icons
+
+---
+
+## Architecture
+
+The backend follows a layered architecture that separates concerns across distinct responsibilities:
+
+```
+Request → Routes → Middleware → Controller → Service → Model → MongoDB
+```
+
+| Layer | Responsibility |
+|---|---|
+| **Routes** | Define API endpoints and attach middleware |
+| **Middleware** | Handle authentication, authorization, validation, and error processing |
+| **Controllers** | Handle incoming HTTP requests and outgoing responses |
+| **Services** | Encapsulate core business logic |
+| **Models** | Define MongoDB document schemas via Mongoose |
+
+---
+
+## Project Structure
+
+```
+NOVA-Store/
+│
+├── backend/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── config/
+│   ├── app.js
+│   └── server.js
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   ├── types/
+│   │   ├── schemas/
+│   │   └── routes/
+│   └── ...
+│
+├── .gitignore
+└── README.md
+```
+
+---
+
+## Authentication
+
+Protected endpoints require a valid JWT access token, sent via the `Authorization` header:
+
+```http
+Authorization: Bearer <TOKEN>
+```
+
+Two roles are supported:
+
+- `customer`
+- `admin`
+
+Admin-only operations require an authenticated user with the `admin` role.
+
+---
+
+## API Reference
 
 ### Authentication
 
-* User Registration
-* User Login
-* Password Hashing using bcrypt
-* JWT Authentication
-* Protected Routes
-* Invalid/Expired Token Handling
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register a new customer account |
+| POST | `/api/auth/login` | Authenticate a user and return an access token |
 
-### Authorization
+### Products
 
-* Role-Based Access Control (RBAC)
-* Customer Role
-* Admin Role
-* Protected Admin Routes
-* Protected Customer Routes
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/products` | Retrieve all products |
+| GET | `/api/products/:id` | Retrieve a single product |
+| POST | `/api/products` | Create a new product *(admin)* |
+| PUT/PATCH | `/api/products/:id` | Update a product *(admin)* |
+| DELETE | `/api/products/:id` | Delete a product *(admin)* |
 
-### Database
+Example product payload:
 
-* MongoDB Atlas
-* Mongoose ODM
-* User Schema
-* Unique Email Validation
-
-### Backend
-
-* Node.js
-* Express.js
-* REST API
-* CORS
-* JSON Request Handling
-* Environment Variables
-* Nodemon for Development
-
----
-
-## 🛠️ Tech Stack
-
-| Layer            | Technology               |
-| ---------------- | ------------------------ |
-| Runtime          | Node.js                  |
-| Backend          | Express.js               |
-| Database         | MongoDB Atlas            |
-| ODM              | Mongoose                 |
-| Authentication   | JWT                      |
-| Password Hashing | bcryptjs                 |
-| API Testing      | Postman / Thunder Client |
-| Development      | Nodemon                  |
-| Version Control  | Git & GitHub             |
-
----
-
-# 📁 Project Structure
-
-```text
-Mini E-Commerce/
-│
-├── backend/
-│   ├── src/
-│   │   ├── controllers/
-│   │   │   └── authController.js
-│   │   │
-│   │   ├── middleware/
-│   │   │   └── authMiddleware.js
-│   │   │
-│   │   ├── models/
-│   │   │   └── User.js
-│   │   │
-│   │   ├── routes/
-│   │   │   └── authRoutes.js
-│   │   │
-│   │   ├── app.js
-│   │   └── server.js
-│   │
-│   ├── .env
-│   ├── .gitignore
-│   ├── package.json
-│   └── package-lock.json
-│
-├── frontend/
-│
-├── docs/
-│   └── 01-authentication-authorization.md
-│
-├── .gitignore
-├── README.md
-├── package.json
-└── package-lock.json
+```json
+{
+  "name": "Laptop",
+  "description": "Modern high-performance laptop",
+  "price": 25000,
+  "category": "Laptops",
+  "stock": 10
+}
 ```
 
----
+### Categories
 
-# ⚙️ Installation
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/categories` | Retrieve all categories |
+| GET | `/api/categories/:id` | Retrieve a single category |
+| POST | `/api/categories` | Create a new category *(admin)* |
+| PUT/PATCH | `/api/categories/:id` | Update a category *(admin)* |
+| DELETE | `/api/categories/:id` | Delete a category *(admin)* |
 
-## 1. Clone the Repository
+### Cart
 
-```bash
-git clone https://github.com/AhmedAdelCoder/Mini-E-Commerce.git
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/cart` | Retrieve the current user's cart |
+| POST | `/api/cart/:productId` | Add a product to the cart |
+| PATCH | `/api/cart/:productId` | Update item quantity |
+| DELETE | `/api/cart/:productId` | Remove an item from the cart |
+
+Example cart item:
+
+```json
+{
+  "product": "PRODUCT_ID",
+  "quantity": 2
+}
 ```
 
-Move into the project:
+Each cart is scoped to a single authenticated user.
 
-```bash
-cd "Mini E-Commerce"
+### Orders
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/orders` | Create an order from the current cart |
+| GET | `/api/orders` | Retrieve the authenticated user's orders |
+| GET | `/api/orders/:orderId` | Retrieve a specific order |
+
+> Admin order-management endpoints should be documented here once route names are finalized.
+
+**Order lifecycle:**
+
 ```
+pending → confirmed → processing → shipped → delivered
+```
+
+Orders may also be marked as `cancelled` at any applicable stage.
+
+**Order item snapshot:** each order stores the product's name, price, quantity, and product ID at the time of purchase, ensuring historical orders remain unaffected by later price changes.
 
 ---
 
-## 2. Install Backend Dependencies
+## Order Processing
 
-```bash
-cd backend
-npm install
+**Total calculation** — always computed server-side:
+
 ```
+item total  = product price × quantity
+order total = sum of all item totals
+```
+
+Example:
+
+```
+Laptop — Price: 25,000 × Quantity: 2 = Total: 50,000
+```
+
+**Stock validation** — verified before order creation:
+
+```
+Current stock: 5
+Requested:     2
+Remaining:     3
+```
+
+Orders that exceed available stock are automatically rejected.
 
 ---
 
-# 🔐 Environment Variables
+## Environment Variables
 
-Create a `.env` file inside the `backend` folder:
+Create a `.env` file inside the `backend/` directory:
 
 ```env
 PORT=5000
-
-MONGO_URI=your_mongodb_connection_string
-
+MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ```
 
-### Example
-
-```env
-PORT=5000
-
-MONGO_URI=mongodb+srv://USERNAME:PASSWORD@cluster0.mongodb.net/mini-ecommerce
-
-JWT_SECRET=mini_ecommerce_secret
-```
-
-> Never commit your `.env` file to GitHub.
+> **Note:** Never commit real secrets or credentials to version control.
 
 ---
 
-# ▶️ Run the Backend
+## Installation
 
-From the `backend` folder:
-
+**1. Clone the repository**
 ```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd NOVA-Store
+```
+
+**2. Set up the backend**
+```bash
+cd backend
+npm install
+# Configure your .env file (see Environment Variables above)
 npm run dev
 ```
 
-The server should start at:
-
-```text
-http://localhost:5000
+**3. Set up the frontend** (in a separate terminal)
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-Expected output:
-
-```text
-MongoDB connected successfully
-Server running on http://localhost:5000
-```
+The frontend will be served via the Vite development server, and the backend will run on the configured `PORT`.
 
 ---
 
-# ❤️ Health Check
+## API Testing
 
-To verify that the API is running:
+Recommended end-to-end testing flow:
 
-```http
-GET /health
+```
+Register → Login → Get Products → Add to Cart →
+Update Cart → Create Order → Verify Stock →
+Verify Cart Is Empty → Get My Orders
 ```
 
-Response:
+Both success and failure paths should be covered, including:
 
-```json
-{
-  "success": true,
-  "message": "Mini E-Commerce API is running"
-}
-```
+- Valid vs. invalid authentication
+- Unauthorized access attempts
+- Admin-only authorization checks
+- Invalid or missing product IDs
+- Empty cart handling
+- Insufficient stock scenarios
+- Invalid quantity inputs
+- Unauthorized order access
 
 ---
 
-# 🔑 Authentication API
+## Security
 
-## Register
+NOVA Store applies the following security practices:
 
-```http
-POST /api/v1/auth/register
-```
-
-### Request Body
-
-```json
-{
-  "name": "Ahmed",
-  "email": "ahmed@test.com",
-  "password": "123456"
-}
-```
-
-### Response
-
-```json
-{
-  "success": true,
-  "message": "User registered successfully",
-  "user": {
-    "id": "...",
-    "name": "Ahmed",
-    "email": "ahmed@test.com",
-    "role": "customer"
-  }
-}
-```
+- JWT-based authentication
+- Protected and role-restricted API routes
+- Server-side price and total calculation
+- Server-side stock validation
+- Secrets managed via environment variables
+- User-scoped access to carts and orders
 
 ---
 
-## Login
+## Frontend
 
-```http
-POST /api/v1/auth/login
-```
+The frontend delivers a modern, e-commerce-grade user experience, with attention to:
 
-### Request Body
-
-```json
-{
-  "email": "ahmed@test.com",
-  "password": "123456"
-}
-```
-
-The API returns a JWT:
-
-```json
-{
-  "success": true,
-  "message": "Login successful",
-  "token": "YOUR_JWT_TOKEN",
-  "user": {
-    "id": "...",
-    "name": "Ahmed",
-    "email": "ahmed@test.com",
-    "role": "customer"
-  }
-}
-```
+- Responsive, mobile-first design
+- Reusable, accessible components
+- Well-defined loading, empty, and error states
+- Product search and filtering
+- Smooth navigation and transitions
+- A dedicated admin dashboard with order management and reporting
 
 ---
 
-# 🛡️ Authorization
+## Admin Dashboard
 
-The project uses **Role-Based Access Control (RBAC)**.
+The Admin Dashboard centralizes store operations across the following areas:
 
-Available roles:
-
-```text
-customer
-admin
+```
+Dashboard · Products · Categories · Orders · Users · Reports · Settings
 ```
 
-## Customer
-
-Customers can access customer-protected routes.
-
-## Admin
-
-Admins can access admin-protected routes.
-
-Protected requests use:
-
-```http
-Authorization: Bearer YOUR_JWT_TOKEN
-```
+All analytics and reports are driven by real backend data — no fabricated or placeholder statistics.
 
 ---
 
-# 🔒 Middleware
+## Roadmap
 
-The project uses two authentication/authorization middleware functions.
+Planned improvements include:
 
-### `protect`
-
-Responsible for:
-
-1. Reading the Authorization header.
-2. Extracting the JWT.
-3. Verifying the token.
-4. Adding decoded user information to `req.user`.
-
-Example:
-
-```js
-req.user = decoded;
-```
-
-### `authorize`
-
-Responsible for checking whether the authenticated user has the required role.
-
-Example:
-
-```js
-authorize("admin")
-```
-
-Only users with:
-
-```text
-role = admin
-```
-
-can continue.
+- MongoDB transactions for atomic order creation
+- Redis caching
+- Background job processing with BullMQ
+- Email notifications
+- Payment gateway integration
+- Product image uploads via Cloudinary
+- Advanced analytics
+- Wishlist and reviews/ratings
+- Docker-based deployment
+- CI/CD pipeline
+- Automated test coverage
 
 ---
 
-# 📡 Current API Endpoints
+## Screenshots
 
-| Method | Endpoint                | Access   |
-| ------ | ----------------------- | -------- |
-| GET    | `/health`               | Public   |
-| POST   | `/api/v1/auth/register` | Public   |
-| POST   | `/api/v1/auth/login`    | Public   |
-| GET    | `/api/v1/auth/customer` | Customer |
-| GET    | `/api/v1/auth/admin`    | Admin    |
+Screenshots of the NOVA Store interface will be added once the frontend implementation is finalized.
 
 ---
 
-# 🧪 Testing
+## License
 
-The API can be tested using:
-
-* Postman
-* Thunder Client
-* Insomnia
-
-### Authentication Flow
-
-```text
-Register
-   ↓
-User Created
-   ↓
-Login
-   ↓
-JWT Generated
-   ↓
-Send JWT with Request
-   ↓
-protect Middleware
-   ↓
-authorize Middleware
-   ↓
-Access Granted / Denied
-```
+This project is developed for learning and portfolio purposes.
 
 ---
 
-# 📊 Project Progress
-
-### Completed
-
-* [x] Project Setup
-* [x] Express Server
-* [x] MongoDB Atlas Connection
-* [x] Mongoose Setup
-* [x] User Model
-* [x] User Registration
-* [x] Password Hashing
-* [x] Login
-* [x] JWT Generation
-* [x] JWT Verification
-* [x] Authentication Middleware
-* [x] Authorization Middleware
-* [x] Customer Role
-* [x] Admin Role
-
-### Coming Next
-
-* [ ] Product Model
-* [ ] Product CRUD
-* [ ] Product Authorization
-* [ ] Cart
-* [ ] Orders
-* [ ] Frontend
-* [ ] Final Integration
-
----
-
-# 📚 Documentation
-
-Detailed documentation is available in the `docs` directory.
-
-Current documentation:
-
-```text
-docs/
-└── 01-authentication-authorization.md
-```
-
-More documentation will be added as the project grows.
-
----
-
-# 🔒 Security Notes
-
-The project follows several basic security practices:
-
-* Passwords are hashed before being stored.
-* Passwords are never returned in API responses.
-* JWTs are signed using a server-side secret.
-* Protected routes require authentication.
-* Admin routes require the appropriate role.
-* Environment variables are used for sensitive configuration.
-* `.env` should never be committed to GitHub.
-
----
-
-# 👨‍💻 Author
+## Author
 
 **Ahmed Adel**
-
-GitHub:
-
-https://github.com/AhmedAdelCoder
+Full-Stack Developer
 
 ---
 
-# 📄 License
-
-This project is licensed under the MIT License.
+*Build. Learn. Improve. Ship.*

@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { NovaLogo } from '@/components/common/NovaLogo';
 import { useAuth } from '@/context/AuthContext';
 import { authApi } from '@/services/api/auth.api';
 import { extractErrorMessage } from '@/services/api/client';
-import { getPostAuthRedirect } from '@/lib/auth';
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -22,15 +22,11 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export function LoginPage() {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
-  const redirectTo = getPostAuthRedirect(
-    (location.state as { from?: { pathname?: string; search?: string } } | null)?.from
-  );
 
   useEffect(() => {
-    if (isAuthenticated) navigate(redirectTo, { replace: true });
-  }, [isAuthenticated, navigate, redirectTo]);
+    if (isAuthenticated) navigate('/', { replace: true });
+  }, [isAuthenticated, navigate]);
 
   const {
     register,
@@ -46,7 +42,7 @@ export function LoginPage() {
       if (result.success && result.token && result.user) {
         login(result.token, result.user);
         toast.success(`Welcome back, ${result.user.name}!`);
-        navigate(redirectTo, { replace: true });
+        navigate('/');
       } else {
         toast.error(result.message || 'Login failed. Please try again.');
       }

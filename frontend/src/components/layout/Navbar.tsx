@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, X, User, LogOut, ChevronRight, Package } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, LogOut, ChevronRight, Package, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NovaLogo } from '@/components/common/NovaLogo';
 import { useAuth } from '@/context/AuthContext';
@@ -115,6 +115,16 @@ export function Navbar() {
                         <User className="h-4 w-4" />
                         My Account
                       </Link>
+                      {user?.role === 'admin' && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-sm text-indigo-400 font-medium hover:bg-indigo-500/10 transition-colors"
+                        >
+                          <Shield className="h-4 w-4 text-indigo-400" />
+                          Admin Dashboard
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors"
@@ -247,6 +257,16 @@ export function Navbar() {
                       <User className="h-4 w-4" />
                       My Account
                     </Link>
+                    {user?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-indigo-400 font-medium hover:bg-indigo-500/10 transition-colors"
+                      >
+                        <Shield className="h-4 w-4 text-indigo-400" />
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="flex w-full items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors"

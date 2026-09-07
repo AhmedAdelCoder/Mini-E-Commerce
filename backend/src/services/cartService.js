@@ -6,7 +6,7 @@ export const addToCartService = async (
   productId,
   quantity
 ) => {
-  // Check if product exists
+  //! Check if product exists
   const product = await Product.findById(productId);
 
   if (!product) {
@@ -15,7 +15,7 @@ export const addToCartService = async (
     throw error;
   }
 
-  // Get user cart
+  
   let cart = await Cart.findOne({ user: userId });
 
   //! Create cart if it doesn't exist

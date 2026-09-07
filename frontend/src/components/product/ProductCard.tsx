@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
@@ -8,12 +8,25 @@ import { useAuth } from '@/context/AuthContext';
 import { useAddToCart } from '@/hooks/useCart';
 import { extractErrorMessage } from '@/services/api/client';
 import { formatCurrency, cn } from '@/lib/utils';
+import { getProductImageUrl } from '@/lib/productImage';
 import { useState } from 'react';
-import { ProductImage } from '@/components/product/ProductImage';
 
 interface ProductCardProps {
   product: Product;
   className?: string;
+}
+
+const PLACEHOLDER_COLORS = [
+  'from-violet-900/40 to-indigo-900/40',
+  'from-slate-800/60 to-zinc-900/60',
+  'from-blue-900/40 to-cyan-900/30',
+  'from-emerald-900/30 to-teal-900/40',
+  'from-rose-900/30 to-pink-900/30',
+];
+
+function getPlaceholderColor(name: string) {
+  const idx = name.charCodeAt(0) % PLACEHOLDER_COLORS.length;
+  return PLACEHOLDER_COLORS[idx];
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
@@ -44,6 +57,10 @@ export function ProductCard({ product, className }: ProductCardProps) {
     }
   };
 
+  const gradient = getPlaceholderColor(product.name);
+  const [imgFailed, setImgFailed] = useState(false);
+  const imgSrc = getProductImageUrl(product);
+
   return (
     <motion.div
       whileHover={{ y: -3 }}
@@ -55,13 +72,31 @@ export function ProductCard({ product, className }: ProductCardProps) {
         className="block rounded-xl border border-border bg-card overflow-hidden hover:border-border/80 hover:shadow-lg hover:shadow-black/30 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         aria-label={`View ${product.name}`}
       >
-        <div className="relative aspect-square overflow-hidden bg-muted">
-          <ProductImage
-            product={product}
-            className="absolute inset-0"
-            imgClassName="transition-transform duration-500 group-hover:scale-105"
-            width={640}
-          />
+        {/* Image Area */}
+        <div className="relative aspect-square overflow-hidden">
+          {/* Gradient placeholder — always rendered as background/fallback */}
+          <div
+            className={cn(
+              'absolute inset-0 bg-gradient-to-br flex items-center justify-center',
+              gradient
+            )}
+          >
+            <Package className="h-14 w-14 text-white/15" />
+          </div>
+
+          {/* Actual image — sits above the gradient; hidden on error */}
+          {!imgFailed && (
+            <img
+              src={imgSrc}
+              alt={product.name}
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+              onError={() => setImgFailed(true)}
+            />
+          )}
+
+          {/* Overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           {/* Stock badge */}

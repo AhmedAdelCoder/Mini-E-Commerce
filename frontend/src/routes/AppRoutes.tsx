@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
+import { AdminProtectedRoute } from './AdminProtectedRoute';
 
 const HomePage = lazy(() => import('@/pages/Home/HomePage').then(m => ({ default: m.HomePage })));
 const ProductsPage = lazy(() => import('@/pages/Products/ProductsPage').then(m => ({ default: m.ProductsPage })));
@@ -12,6 +13,14 @@ const RegisterPage = lazy(() => import('@/pages/Register/RegisterPage').then(m =
 const ProfilePage = lazy(() => import('@/pages/Profile/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const CheckoutPage = lazy(() => import('@/pages/Checkout/CheckoutPage').then(m => ({ default: m.CheckoutPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFound/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+
+// Admin Pages
+const AdminDashboardPage = lazy(() => import('@/pages/Admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const AdminProductsPage = lazy(() => import('@/pages/Admin/AdminProductsPage').then(m => ({ default: m.AdminProductsPage })));
+const AdminCategoriesPage = lazy(() => import('@/pages/Admin/AdminCategoriesPage').then(m => ({ default: m.AdminCategoriesPage })));
+const AdminUsersPage = lazy(() => import('@/pages/Admin/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
+const AdminOrdersPage = lazy(() => import('@/pages/Admin/AdminOrdersPage').then(m => ({ default: m.AdminOrdersPage })));
+const AdminReportsPage = lazy(() => import('@/pages/Admin/AdminReportsPage').then(m => ({ default: m.AdminReportsPage })));
 
 function PageLoader() {
   return (
@@ -49,9 +58,61 @@ export function AppRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* Admin Protected Routes */}
+          <Route
+            path="/admin"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboardPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <AdminProtectedRoute>
+                <AdminProductsPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/categories"
+            element={
+              <AdminProtectedRoute>
+                <AdminCategoriesPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminProtectedRoute>
+                <AdminUsersPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <AdminProtectedRoute>
+                <AdminOrdersPage />
+              </AdminProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <AdminProtectedRoute>
+                <AdminReportsPage />
+              </AdminProtectedRoute>
+            }
+          />
+
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
   );
 }
+

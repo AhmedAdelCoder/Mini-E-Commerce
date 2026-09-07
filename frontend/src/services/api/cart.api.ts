@@ -1,4 +1,3 @@
-import axios from 'axios';
 import apiClient from './client';
 import type { CartResponse, AddToCartPayload } from '@/types';
 
@@ -8,7 +7,9 @@ export const cartApi = {
       const { data } = await apiClient.get<CartResponse>('/cart');
       return data;
     } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
+      // Backend returns 404 when cart is empty/not yet created — treat as empty
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 404) {
         return null;
       }
       throw error;

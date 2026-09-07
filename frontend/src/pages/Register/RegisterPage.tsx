@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,7 +10,6 @@ import { NovaLogo } from '@/components/common/NovaLogo';
 import { useAuth } from '@/context/AuthContext';
 import { authApi } from '@/services/api/auth.api';
 import { extractErrorMessage } from '@/services/api/client';
-import { getPostAuthRedirect } from '@/lib/auth';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -27,15 +26,11 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export function RegisterPage() {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
-  const redirectTo = getPostAuthRedirect(
-    (location.state as { from?: { pathname?: string; search?: string } } | null)?.from
-  );
 
   useEffect(() => {
-    if (isAuthenticated) navigate(redirectTo, { replace: true });
-  }, [isAuthenticated, navigate, redirectTo]);
+    if (isAuthenticated) navigate('/', { replace: true });
+  }, [isAuthenticated, navigate]);
 
   const {
     register,
@@ -58,7 +53,7 @@ export function RegisterPage() {
         if (loginResult.success && loginResult.token && loginResult.user) {
           login(loginResult.token, loginResult.user);
           toast.success(`Welcome to NOVA Store, ${loginResult.user.name}!`);
-          navigate(redirectTo, { replace: true });
+          navigate('/');
         } else {
           toast.success('Account created! Please sign in.');
           navigate('/login');

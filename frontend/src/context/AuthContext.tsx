@@ -1,12 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { User } from '@/types';
-import {
-  AUTH_EXPIRED_EVENT,
-  AUTH_TOKEN_KEY,
-  AUTH_USER_KEY,
-  clearAuthStorage,
-  parseStoredUser,
-} from '@/lib/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -24,44 +17,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const logout = useCallback(() => {
-    clearAuthStorage();
-    setToken(null);
-    setUser(null);
-  }, []);
-
   useEffect(() => {
+    // Restore session from localStorage on mount
     try {
-      const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
-      const storedUser = localStorage.getItem(AUTH_USER_KEY);
-      const parsedUser = storedUser ? parseStoredUser(storedUser) : null;
-      if (storedToken && parsedUser) {
+      const storedToken = localStorage.getItem('nova_token');
+      const storedUser = localStorage.getItem('nova_user');
+      if (storedToken && storedUser) {
         setToken(storedToken);
-        setUser(parsedUser);
-      } else {
-        clearAuthStorage();
+        setUser(JSON.parse(storedUser));
       }
     } catch {
-      clearAuthStorage();
+      localStorage.removeItem('nova_token');
+      localStorage.removeItem('nova_user');
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    const onExpired = () => {
-      setToken(null);
-      setUser(null);
-    };
-    window.addEventListener(AUTH_EXPIRED_EVENT, onExpired);
-    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, onExpired);
-  }, []);
-
   const login = useCallback((newToken: string, newUser: User) => {
-    localStorage.setItem(AUTH_TOKEN_KEY, newToken);
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newUser));
+    localStorage.setItem('nova_token', newToken);
+    localStorage.setItem('nova_user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
+  }, []);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('nova_token');
+    localStorage.removeItem('nova_user');
+    setToken(null);
+    setUser(null);
   }, []);
 
   return (

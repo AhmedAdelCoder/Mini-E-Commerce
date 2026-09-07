@@ -39,8 +39,6 @@ export interface Product {
   price: number;
   category: string;
   stock: number;
-  /** Optional — backend schema does not currently include images. */
-  image?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -85,6 +83,17 @@ export interface AddToCartPayload {
 export interface UpdateCartPayload {
   quantity: number;
 }
+
+// Product mutation payloads
+export interface CreateProductPayload {
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  stock: number;
+}
+
+export type UpdateProductPayload = Partial<CreateProductPayload>;
 
 // Error Types
 export interface ApiError {

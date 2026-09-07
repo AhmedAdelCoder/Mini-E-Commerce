@@ -2,13 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/context/AuthContext';
 import { AppRoutes } from '@/routes/AppRoutes';
-import { shouldRetryQuery } from '@/services/api/client';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: shouldRetryQuery,
+      retry: 1,
     },
   },
 });
