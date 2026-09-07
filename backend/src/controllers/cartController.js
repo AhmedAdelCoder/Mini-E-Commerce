@@ -5,15 +5,17 @@ import {
   removeFromCartService,
 } from "../services/cartService.js";
 
+const isValidQuantity = (quantity) =>
+  Number.isInteger(quantity) && quantity >= 1;
 
 export const addToCart = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
 
-    if (!productId || !quantity) {
+    if (!productId || !isValidQuantity(quantity)) {
       return res.status(400).json({
         success: false,
-        message: "Product ID and quantity are required",
+        message: "Product ID and a positive whole-number quantity are required",
       });
     }
 
@@ -62,17 +64,10 @@ export const updateCartItem = async (req, res) => {
     const { quantity } = req.body;
     const { productId } = req.params;
 
-    if (quantity === undefined) {
+    if (!isValidQuantity(quantity)) {
       return res.status(400).json({
         success: false,
-        message: "Quantity is required",
-      });
-    }
-
-    if (quantity < 1) {
-      return res.status(400).json({
-        success: false,
-        message: "Quantity must be at least 1",
+        message: "Quantity must be a positive whole number",
       });
     }
 

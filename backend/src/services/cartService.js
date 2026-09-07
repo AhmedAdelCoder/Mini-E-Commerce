@@ -1,6 +1,14 @@
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 
+const populateCartProducts = (cart) => cart.populate("items.product");
+
+const createStockError = (product) => {
+  const error = new Error(`Insufficient stock for product: ${product.name}`);
+  error.statusCode = 400;
+  return error;
+};
+
 export const addToCartService = async (
   userId,
   productId,
@@ -15,8 +23,16 @@ export const addToCartService = async (
     throw error;
   }
 
-  
   let cart = await Cart.findOne({ user: userId });
+
+  const existingItem = cart?.items.find(
+    (item) => item.product.toString() === productId
+  );
+  const requestedQuantity = (existingItem?.quantity ?? 0) + quantity;
+
+  if (requestedQuantity > product.stock) {
+    throw createStockError(product);
+  }
 
   //! Create cart if it doesn't exist
   if (!cart) {
@@ -30,13 +46,8 @@ export const addToCartService = async (
       ],
     });
 
-    return cart;
+    return populateCartProducts(cart);
   }
-
-  //todo Check if product already exists in cart
-  const existingItem = cart.items.find(
-    (item) => item.product.toString() === productId
-  );
 
   if (existingItem) {
     existingItem.quantity += quantity;
@@ -49,12 +60,11 @@ export const addToCartService = async (
 
   await cart.save();
 
-  return cart;
+  return populateCartProducts(cart);
 };
 
 export const getCartService = async (userId) => {
-  const cart = await Cart.findOne({ user: userId })
-    .populate("items.product");
+  const cart = await Cart.findOne({ user: userId }).populate("items.product");
 
   if (!cart) {
     const error = new Error("Cart not found");
@@ -89,11 +99,23 @@ export const updateCartItemService = async (
     throw error;
   }
 
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    const error = new Error("Product not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (quantity > product.stock) {
+    throw createStockError(product);
+  }
+
   item.quantity = quantity;
 
   await cart.save();
 
-  return cart;
+  return populateCartProducts(cart);
 };
 
 //! remove product from cart
@@ -125,5 +147,5 @@ export const removeFromCartService = async (
 
   await cart.save();
 
-  return cart;
+  return populateCartProducts(cart);
 };
