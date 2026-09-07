@@ -1,11 +1,18 @@
 import type { Product } from '@/types';
 
 /**
- * All laptop images served from public/image/.
- * Vite serves the public directory at /, so browser paths are /image/...
- * Filenames must match exactly (spaces included).
+ * Base URL of the backend server (without /api/v1).
+ * Used to turn relative paths like /uploads/file.jpg into full URLs.
  */
-const PRODUCT_IMAGES: string[] = [
+const BACKEND_ORIGIN =
+  (import.meta.env.VITE_API_URL as string | undefined)?.replace('/api/v1', '') ??
+  'http://localhost:5000';
+
+/**
+ * Local laptop placeholder images served from Vite's public directory.
+ * Used as fallback when a product has no uploaded image.
+ */
+const PLACEHOLDER_IMAGES: string[] = [
   '/image/images.jpg',
   '/image/images (1).jpg',
   '/image/images (2).jpg',
@@ -15,36 +22,50 @@ const PRODUCT_IMAGES: string[] = [
   '/image/images (6).jpg',
 ];
 
-/**
- * Deterministic hash: sum of char codes mod array length.
- * Same seed always returns the same image; different seeds spread across images.
- */
-function pickImage(seed: string): string {
+/** Deterministic hash: same seed always picks the same placeholder. */
+function pickPlaceholder(seed: string): string {
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
     hash += seed.charCodeAt(i);
   }
-  return PRODUCT_IMAGES[hash % PRODUCT_IMAGES.length];
+  return PLACEHOLDER_IMAGES[hash % PLACEHOLDER_IMAGES.length];
 }
 
 /**
- * Returns a URL for a product image.
- * Uses product._id as the hash seed so the same product always gets
- * the same image. Falls back to name if _id is unavailable.
+ * Resolve a stored image path to a full URL.
+ * - Relative path  (/uploads/…) → prepend backend origin
+ * - Absolute URL   (http/https)  → return as-is
+ */
+function resolveUrl(path: string): string {
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `${BACKEND_ORIGIN}${path}`;
+}
+
+/**
+ * Returns the display URL for a product image.
+ *
+ * Priority:
+ *  1. product.image set by the backend (uploaded file) → full backend URL
+ *  2. Deterministic placeholder from /public/image/    → local Vite path
  */
 export function getProductImageUrl(
-  product: Pick<Product, '_id' | 'name' | 'category'> & { image?: string },
+  product: Pick<Product, '_id' | 'name' | 'category'> & { image?: string | null },
   _width?: number
 ): string {
-  if (product.image) return product.image;
-  return pickImage(product._id || product.name);
+  if (product.image) return resolveUrl(product.image);
+  return pickPlaceholder(product._id || product.name);
 }
 
+import { getSavedCategoryImage } from './categoryImages';
+
 /**
- * Returns a URL for a category image.
- * Uses the category string as the seed so every category gets a consistent,
- * distinct image.
+ * Returns a display URL for a category tile image.
+ * Priority:
+ *  1. Admin-chosen image saved in localStorage
+ *  2. Deterministic placeholder from /public/image/
  */
 export function getCategoryImageUrl(category: string, _width?: number): string {
-  return pickImage(category);
+  const saved = getSavedCategoryImage(category);
+  if (saved) return saved;
+  return pickPlaceholder(category);
 }

@@ -12,6 +12,7 @@ const LoginPage = lazy(() => import('@/pages/Login/LoginPage').then(m => ({ defa
 const RegisterPage = lazy(() => import('@/pages/Register/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const ProfilePage = lazy(() => import('@/pages/Profile/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const CheckoutPage = lazy(() => import('@/pages/Checkout/CheckoutPage').then(m => ({ default: m.CheckoutPage })));
+const OrdersPage = lazy(() => import('@/pages/Orders/OrdersPage').then(m => ({ default: m.OrdersPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFound/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 // Admin Pages
@@ -55,6 +56,14 @@ export function AppRoutes() {
             element={
               <ProtectedRoute>
                 <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <OrdersPage />
               </ProtectedRoute>
             }
           />

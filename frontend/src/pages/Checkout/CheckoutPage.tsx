@@ -1,23 +1,27 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { CheckCircle, ShoppingBag, ArrowLeft, Package } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useAuth } from '@/context/AuthContext';
-import { useCart, useCartTotal } from '@/hooks/useCart';
+import { useCart, useCartTotal, CART_QUERY_KEY } from '@/hooks/useCart';
 import { EmptyState } from '@/components/common/EmptyState';
 import { formatCurrency } from '@/lib/utils';
 import { ProductImage } from '@/components/product/ProductImage';
+import { ordersApi } from '@/services/api/orders.api';
+import { extractErrorMessage } from '@/services/api/client';
+import type { Order } from '@/types';
 
 const checkoutSchema = z.object({
-  name: z.string().min(2, 'Full name is required'),
-  email: z.string().email('Enter a valid email'),
-  address: z.string().min(5, 'Enter your delivery address'),
-  city: z.string().min(2, 'City is required'),
+  fullName:   z.string().min(2, 'Full name is required'),
+  email:      z.string().email('Enter a valid email'),
+  address:    z.string().min(5, 'Enter your delivery address'),
+  city:       z.string().min(2, 'City is required'),
   postalCode: z.string().min(3, 'Postal code is required'),
 });
 
@@ -26,9 +30,10 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 export function CheckoutPage() {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data } = useCart();
   const total = useCartTotal();
-  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
 
   const items = data?.cart?.items ?? [];
 
@@ -39,8 +44,8 @@ export function CheckoutPage() {
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      name: user?.name ?? '',
-      email: user?.email ?? '',
+      fullName: user?.name ?? '',
+      email:    user?.email ?? '',
     },
   });
 
@@ -52,7 +57,10 @@ export function CheckoutPage() {
             title="Sign in required"
             description="Please sign in to proceed to checkout."
             action={
-              <Link to="/login" className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+              >
                 Sign in
               </Link>
             }
@@ -62,7 +70,7 @@ export function CheckoutPage() {
     );
   }
 
-  if (items.length === 0 && !orderPlaced) {
+  if (items.length === 0 && !placedOrder) {
     return (
       <MainLayout>
         <div className="container mx-auto px-4 sm:px-6 py-20">
@@ -71,7 +79,10 @@ export function CheckoutPage() {
             title="Your cart is empty"
             description="Add items to your cart before checking out."
             action={
-              <Link to="/products" className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors">
+              <Link
+                to="/products"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+              >
                 Shop now
               </Link>
             }
@@ -81,18 +92,33 @@ export function CheckoutPage() {
     );
   }
 
-  const onSubmit = async (_data: CheckoutFormData) => {
-    // The backend has no Order/Payment API — this is a frontend-only order confirmation flow
-    await new Promise((r) => setTimeout(r, 1200));
-    setOrderPlaced(true);
-    toast.success('Order placed successfully!');
+  const onSubmit = async (formData: CheckoutFormData) => {
+    try {
+      const result = await ordersApi.create({
+        shippingAddress: {
+          fullName:   formData.fullName,
+          email:      formData.email,
+          address:    formData.address,
+          city:       formData.city,
+          postalCode: formData.postalCode,
+        },
+      });
+
+      // Invalidate cart so Navbar count drops to 0
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+
+      setPlacedOrder(result.data);
+      toast.success('Order placed successfully!');
+    } catch (err) {
+      toast.error(extractErrorMessage(err, 'Failed to place order. Please try again.'));
+    }
   };
 
   return (
     <MainLayout>
       <div className="container mx-auto px-4 sm:px-6 py-10">
         <AnimatePresence mode="wait">
-          {orderPlaced ? (
+          {placedOrder ? (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -104,26 +130,38 @@ export function CheckoutPage() {
                   <CheckCircle className="h-10 w-10 text-emerald-400" />
                 </div>
               </div>
-              <h1 className="font-syne text-3xl font-bold text-foreground mb-3" style={{ fontFamily: "'Syne', sans-serif" }}>
+              <h1
+                className="font-syne text-3xl font-bold text-foreground mb-3"
+                style={{ fontFamily: "'Syne', sans-serif" }}
+              >
                 Order Confirmed!
               </h1>
-              <p className="text-muted-foreground mb-8 leading-relaxed">
-                Thank you for your order. We'll have it ready for you soon.
+              <p className="text-muted-foreground mb-2 leading-relaxed">
+                Thank you for your order. We'll have it ready soon.
               </p>
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
-              >
-                <ShoppingBag className="h-4 w-4" />
-                Continue Shopping
-              </Link>
+              <p className="text-xs text-muted-foreground mb-8">
+                Order ID:{' '}
+                <span className="font-mono text-primary">{placedOrder._id}</span>
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link
+                  to="/orders"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-white/5 px-6 py-3 text-sm font-semibold text-foreground hover:bg-white/8 transition-colors"
+                >
+                  <Package className="h-4 w-4" />
+                  Track Order
+                </Link>
+                <Link
+                  to="/products"
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  Continue Shopping
+                </Link>
+              </div>
             </motion.div>
           ) : (
-            <motion.div
-              key="form"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
+            <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <div className="mb-8 flex items-center gap-3">
                 <button
                   onClick={() => navigate('/cart')}
@@ -136,8 +174,13 @@ export function CheckoutPage() {
               </div>
 
               <div className="mb-8">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary">Almost there</p>
-                <h1 className="font-syne text-4xl font-bold text-foreground" style={{ fontFamily: "'Syne', sans-serif" }}>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary">
+                  Almost there
+                </p>
+                <h1
+                  className="font-syne text-4xl font-bold text-foreground"
+                  style={{ fontFamily: "'Syne', sans-serif" }}
+                >
                   Checkout
                 </h1>
               </div>
@@ -147,33 +190,45 @@ export function CheckoutPage() {
                 <div className="lg:col-span-2">
                   <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
                     <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                      <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Delivery Information</h2>
+                      <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                        Delivery Information
+                      </h2>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="checkout-name" className="mb-1.5 block text-sm font-medium text-foreground">Full name</label>
+                          <label htmlFor="checkout-name" className="mb-1.5 block text-sm font-medium text-foreground">
+                            Full name
+                          </label>
                           <input
                             id="checkout-name"
                             type="text"
-                            {...register('name')}
+                            {...register('fullName')}
                             className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                           />
-                          {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>}
+                          {errors.fullName && (
+                            <p className="mt-1 text-xs text-red-400">{errors.fullName.message}</p>
+                          )}
                         </div>
                         <div>
-                          <label htmlFor="checkout-email" className="mb-1.5 block text-sm font-medium text-foreground">Email</label>
+                          <label htmlFor="checkout-email" className="mb-1.5 block text-sm font-medium text-foreground">
+                            Email
+                          </label>
                           <input
                             id="checkout-email"
                             type="email"
                             {...register('email')}
                             className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                           />
-                          {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>}
+                          {errors.email && (
+                            <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>
+                          )}
                         </div>
                       </div>
 
                       <div>
-                        <label htmlFor="checkout-address" className="mb-1.5 block text-sm font-medium text-foreground">Street address</label>
+                        <label htmlFor="checkout-address" className="mb-1.5 block text-sm font-medium text-foreground">
+                          Street address
+                        </label>
                         <input
                           id="checkout-address"
                           type="text"
@@ -181,12 +236,16 @@ export function CheckoutPage() {
                           {...register('address')}
                           className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                         />
-                        {errors.address && <p className="mt-1 text-xs text-red-400">{errors.address.message}</p>}
+                        {errors.address && (
+                          <p className="mt-1 text-xs text-red-400">{errors.address.message}</p>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="checkout-city" className="mb-1.5 block text-sm font-medium text-foreground">City</label>
+                          <label htmlFor="checkout-city" className="mb-1.5 block text-sm font-medium text-foreground">
+                            City
+                          </label>
                           <input
                             id="checkout-city"
                             type="text"
@@ -194,10 +253,14 @@ export function CheckoutPage() {
                             {...register('city')}
                             className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                           />
-                          {errors.city && <p className="mt-1 text-xs text-red-400">{errors.city.message}</p>}
+                          {errors.city && (
+                            <p className="mt-1 text-xs text-red-400">{errors.city.message}</p>
+                          )}
                         </div>
                         <div>
-                          <label htmlFor="checkout-postal" className="mb-1.5 block text-sm font-medium text-foreground">Postal code</label>
+                          <label htmlFor="checkout-postal" className="mb-1.5 block text-sm font-medium text-foreground">
+                            Postal code
+                          </label>
                           <input
                             id="checkout-postal"
                             type="text"
@@ -205,7 +268,9 @@ export function CheckoutPage() {
                             {...register('postalCode')}
                             className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                           />
-                          {errors.postalCode && <p className="mt-1 text-xs text-red-400">{errors.postalCode.message}</p>}
+                          {errors.postalCode && (
+                            <p className="mt-1 text-xs text-red-400">{errors.postalCode.message}</p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -218,16 +283,14 @@ export function CheckoutPage() {
                     >
                       {isSubmitting ? 'Placing order…' : `Place order — ${formatCurrency(total)}`}
                     </button>
-
-                    <p className="text-center text-xs text-muted-foreground">
-                      Note: Order management is not yet available in the backend. This is a frontend-only order flow.
-                    </p>
                   </form>
                 </div>
 
-                {/* Summary */}
+                {/* Order summary */}
                 <div className="rounded-2xl border border-border bg-card p-6 space-y-4 sticky top-24">
-                  <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Order Summary</h2>
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Order Summary
+                  </h2>
                   <div className="space-y-3">
                     {items.map((item) => (
                       <div key={item._id} className="flex items-center gap-3 text-sm">
@@ -239,7 +302,9 @@ export function CheckoutPage() {
                         <span className="text-muted-foreground truncate flex-1">
                           {item.product.name} × {item.quantity}
                         </span>
-                        <span className="text-foreground flex-shrink-0">{formatCurrency(item.product.price * item.quantity)}</span>
+                        <span className="text-foreground flex-shrink-0">
+                          {formatCurrency(item.product.price * item.quantity)}
+                        </span>
                       </div>
                     ))}
                   </div>

@@ -115,6 +115,14 @@ export function Navbar() {
                         <User className="h-4 w-4" />
                         My Account
                       </Link>
+                      <Link
+                        to="/orders"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+                      >
+                        <Package className="h-4 w-4" />
+                        My Orders
+                      </Link>
                       {user?.role === 'admin' && (
                         <Link
                           to="/admin"
@@ -256,6 +264,14 @@ export function Navbar() {
                     >
                       <User className="h-4 w-4" />
                       My Account
+                    </Link>
+                    <Link
+                      to="/orders"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
+                    >
+                      <Package className="h-4 w-4" />
+                      My Orders
                     </Link>
                     {user?.role === 'admin' && (
                       <Link

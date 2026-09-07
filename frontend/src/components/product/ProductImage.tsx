@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { getProductImageUrl } from '@/lib/productImage';
 
 interface ProductImageProps {
-  product: Pick<Product, '_id' | 'name' | 'category'> & { image?: string };
+  product: Pick<Product, '_id' | 'name' | 'category'> & { image?: string | null };
   alt?: string;
   className?: string;
   imgClassName?: string;

@@ -1,1 +1,0 @@
-const i=["/image/images.jpg","/image/images (1).jpg","/image/images (2).jpg","/image/images (3).jpg","/image/images (4).jpg","/image/images (5).jpg","/image/images (6).jpg"];function m(g){let e=0;for(let a=0;a<g.length;a++)e+=g.charCodeAt(a);return i[e%i.length]}function t(g,e){return g.image?g.image:m(g._id||g.name)}function n(g,e){return m(g)}export{t as a,n as g};

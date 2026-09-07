@@ -39,6 +39,7 @@ export interface Product {
   price: number;
   category: string;
   stock: number;
+  image?: string | null;   // URL like /uploads/filename.jpg — null when not set
   createdAt: string;
   updatedAt: string;
 }
@@ -91,9 +92,83 @@ export interface CreateProductPayload {
   price: number;
   category: string;
   stock: number;
+  image?: File | null;   // optional file for upload
 }
 
 export type UpdateProductPayload = Partial<CreateProductPayload>;
+
+// Order Types
+export type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled';
+
+export interface ShippingAddress {
+  fullName: string;
+  email: string;
+  address: string;
+  city: string;
+  postalCode: string;
+}
+
+export interface OrderItem {
+  product: string; // ObjectId ref — not populated in list views
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface Order {
+  _id: string;
+  user: string | { _id: string; name: string; email: string };
+  items: OrderItem[];
+  shippingAddress: ShippingAddress;
+  totalAmount: number;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderResponse {
+  success: boolean;
+  message?: string;
+  data: Order;
+}
+
+export interface OrdersResponse {
+  success: boolean;
+  orders: Order[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface CreateOrderPayload {
+  shippingAddress: ShippingAddress;
+}
+
+// User management (admin)
+export interface AdminUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: 'customer' | 'admin';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UsersResponse {
+  success: boolean;
+  users: AdminUser[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 // Error Types
 export interface ApiError {

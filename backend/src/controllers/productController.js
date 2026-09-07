@@ -24,6 +24,8 @@ export const createProduct = async (req, res) => {
       price,
       category,
       stock,
+      
+      image: req.uploadedImageUrl ?? null,
     });
 
     return res.status(201).json({
@@ -84,24 +86,24 @@ export const getProductById = async (req, res) => {
   }
 };
 
-
 //! Update Product
 export const updateProduct = async (req, res) => {
   try {
     const { name, description, price, category, stock } = req.body;
 
     const updateData = {};
-
-    if (name !== undefined) updateData.name = name;
+    if (name        !== undefined) updateData.name        = name;
     if (description !== undefined) updateData.description = description;
-    if (price !== undefined) updateData.price = price;
-    if (category !== undefined) updateData.category = category;
-    if (stock !== undefined) updateData.stock = stock;
+    if (price       !== undefined) updateData.price       = price;
+    if (category    !== undefined) updateData.category    = category;
+    if (stock       !== undefined) updateData.stock       = stock;
 
-    const product = await updateProductService(
-      req.params.id,
-      updateData
-    );
+    
+    if (req.uploadedImageUrl) {
+      updateData.image = req.uploadedImageUrl;
+    }
+
+    const product = await updateProductService(req.params.id, updateData);
 
     if (!product) {
       return res.status(404).json({
@@ -124,7 +126,6 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-
 //! Delete Product
 export const deleteProduct = async (req, res) => {
   try {
@@ -138,9 +139,7 @@ export const deleteProduct = async (req, res) => {
   } catch (error) {
     return res.status(error.statusCode || 500).json({
       success: false,
-      message: error.statusCode
-        ? error.message
-        : "Failed to delete product",
+      message: error.statusCode ? error.message : "Failed to delete product",
     });
   }
 };
