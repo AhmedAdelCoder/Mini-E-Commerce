@@ -7,13 +7,7 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 
-router.get("/customer", protect, authorize("customer"), (req, res) => {
-  res.json({
-    success: true,
-    message: "Customer access granted",
-    user: req.user,
-  });
-});
+
 
 router.get("/admin", protect, authorize("admin"), (req, res) => {
   res.json({

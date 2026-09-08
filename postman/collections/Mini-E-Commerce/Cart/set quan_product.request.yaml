@@ -1,0 +1,5 @@
+$kind: http-request
+url: http://localhost:5000/api/v1/cart/6a97fc656ec4a3e49997a8b9
+method: PUT
+settings: {}
+order: 3000

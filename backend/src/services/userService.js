@@ -1,8 +1,5 @@
 import User from "../models/User.js";
 
-/**
- * Return all users (admin only) — never exposes password field.
- */
 export const getAllUsersService = async ({ page = 1, limit = 50 } = {}) => {
   const skip = (page - 1) * limit;
 

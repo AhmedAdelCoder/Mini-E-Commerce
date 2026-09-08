@@ -7,7 +7,7 @@ import {
 
 export const createOrder = async (req, res, next) => {
   try {
-    // JWT payload is signed as { userId, role } — use req.user.userId (not .id)
+    
     const userId = req.user.userId;
     const { shippingAddress } = req.body;
 

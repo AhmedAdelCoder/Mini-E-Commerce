@@ -1,0 +1,18 @@
+$kind: http-request
+url: http://localhost:5000/api/v1/products/6a97dea1da5b9b0a62e03afb
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \  \"price\": 32000,\r
+
+    \  \"stock\": 8\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_09l3}}"
+settings: {}
+order: 1000

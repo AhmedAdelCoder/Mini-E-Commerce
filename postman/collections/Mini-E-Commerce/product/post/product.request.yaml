@@ -1,0 +1,24 @@
+$kind: http-request
+url: http://localhost:5000/api/v1/products
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"Bussines Laptop\",\r
+
+    \  \"description\": \"High performance Bussines laptop\",\r
+
+    \  \"price\": 2000,\r
+
+    \  \"category\": \"Laptops\",\r
+
+    \  \"stock\": 4\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_113j}}"
+settings: {}
+order: 1000

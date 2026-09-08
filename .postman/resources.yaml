@@ -1,0 +1,5 @@
+workspace:
+  id: 904d0c16-0a3d-416d-8f44-5928c5c351f7
+cloudResources:
+  collections:
+    ../postman/collections/Mini-E-Commerce: 44368610-7d3dd2ff-c0a1-428d-972a-97273572febf

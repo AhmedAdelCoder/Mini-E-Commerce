@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import loggerMiddleware from "./middleware/logger.middleware.js";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
@@ -14,7 +15,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+app.use(loggerMiddleware);
 
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
@@ -31,7 +32,7 @@ app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/users", userRoutes);
 
-// Global error handler
+//! Global error handler
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500;
   res.status(status).json({
